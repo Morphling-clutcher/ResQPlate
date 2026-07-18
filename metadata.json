@@ -1,0 +1,6 @@
+{
+  "name": "ResQPlate",
+  "description": "ResQPlate helps you find and rescue surplus food from local cafes, bakeries, and restaurants to reduce food waste.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
