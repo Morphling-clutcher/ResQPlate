@@ -57,10 +57,11 @@ export default function DiscoveryScreen({
   };
 
   return (
-    <div className="min-h-screen bg-brand-bg flex flex-col max-w-md mx-auto" id="discovery-screen-container">
+    <div className="min-h-screen bg-brand-bg flex flex-col max-w-md mx-auto lg:max-w-none lg:min-h-0 lg:flex-1" id="discovery-screen-container">
       {/* Sticky Header */}
-      <div className="bg-brand-card shadow-level-1 sticky top-0 z-20 border-b border-brand-outline px-4 py-3" id="discovery-header">
-        <div className="flex items-center justify-between">
+      <div className="bg-brand-card shadow-level-1 sticky top-0 z-20 border-b border-brand-outline px-4 py-3 lg:py-4 lg:px-8" id="discovery-header">
+        {/* Mobile header row */}
+        <div className="flex items-center justify-between lg:hidden">
           <div className="flex items-center gap-1.5">
             <button 
               onClick={onBackToWelcome}
@@ -74,29 +75,39 @@ export default function DiscoveryScreen({
               ResQ<span className="text-brand-primary">Plate</span>
             </h2>
           </div>
-
-          {/* User Impact Tracker pill */}
           <div className="flex items-center gap-1.5 bg-emerald-50 text-brand-primary px-3 py-1 rounded-full border border-emerald-100" id="user-impact-badge">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-xs font-bold font-mono">{userSavedKg.toFixed(1)}kg Saved</span>
           </div>
         </div>
 
+        {/* Desktop header row */}
+        <div className="hidden lg:flex items-center justify-between mb-4" id="discovery-desktop-header">
+          <h2 className="text-2xl font-extrabold text-brand-text tracking-tight">
+            Discover Surplus Bags
+          </h2>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 bg-emerald-50 text-brand-primary px-3.5 py-1.5 rounded-full border border-emerald-100" id="user-impact-badge-desktop">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-sm font-bold font-mono">{userSavedKg.toFixed(1)} kg Saved</span>
+            </div>
+          </div>
+        </div>
+
         {/* Search bar & filter toggle */}
-        <div className="mt-3 flex items-center gap-2" id="search-filter-wrapper">
-          <div className="relative flex-1">
+        <div className="flex items-center gap-2 lg:gap-3" id="search-filter-wrapper">
+          <div className="relative flex-1 lg:max-w-md">
             <Search className="w-4 h-4 text-brand-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search pastries, sushi, lunches..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 bg-slate-50 text-brand-text text-sm rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-brand-primary transition-all placeholder:text-slate-400"
+              className="w-full pl-9 pr-4 py-2.5 bg-slate-50 text-brand-text text-sm rounded-xl outline-none focus:bg-white focus:ring-2 focus:ring-brand-primary transition-all placeholder:text-slate-400 lg:py-3"
               id="search-input"
             />
           </div>
 
-          {/* View Mode Toggle: Map vs List */}
           <div className="flex bg-slate-100 p-1 rounded-xl" id="view-mode-toggle">
             <button
               onClick={() => setViewMode('list')}
@@ -118,12 +129,12 @@ export default function DiscoveryScreen({
         </div>
 
         {/* Horizontal Category Carousel */}
-        <div className="mt-3 flex gap-2 overflow-x-auto no-scrollbar pb-1" id="category-carousel">
+        <div className="mt-3 flex gap-2 overflow-x-auto no-scrollbar pb-1 lg:mt-4" id="category-carousel">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer lg:text-sm lg:px-5 lg:py-2 ${
                 selectedCategory === cat
                   ? 'bg-brand-primary text-white shadow-sm shadow-brand-primary/25'
                   : 'bg-slate-50 text-brand-text-muted border border-brand-outline hover:bg-slate-100'
@@ -137,117 +148,118 @@ export default function DiscoveryScreen({
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 p-4" id="discovery-content">
+      <div className="flex-1 p-4 lg:p-8" id="discovery-content">
         {viewMode === 'list' ? (
-          /* List View */
-          <div className="space-y-4" id="bags-list-container">
-            <div className="flex items-center justify-between" id="list-header-info">
-              <span className="text-xs font-bold uppercase tracking-wider text-brand-text-muted">
+          <div className="space-y-4 lg:space-y-0" id="bags-list-container">
+            <div className="flex items-center justify-between lg:mb-5" id="list-header-info">
+              <span className="text-xs font-bold uppercase tracking-wider text-brand-text-muted lg:text-sm">
                 {filteredBags.length} Surplus bag{filteredBags.length !== 1 && 's'} nearby
               </span>
-              <span className="text-xs font-semibold text-brand-primary flex items-center gap-1">
+              <span className="text-xs font-semibold text-brand-primary flex items-center gap-1 lg:text-sm">
                 <Compass className="w-3.5 h-3.5" /> Sort: Nearest First
               </span>
             </div>
 
             {filteredBags.length > 0 ? (
-              filteredBags.map((bag) => {
-                const store = storeMap[bag.storeId];
-                const discountPct = Math.round(((bag.originalPrice - bag.discountedPrice) / bag.originalPrice) * 100);
-                
-                return (
-                  <motion.div
-                    key={bag.id}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    onClick={() => onSelectBag(bag.id)}
-                    className="bg-brand-card rounded-2xl overflow-hidden shadow-level-2 border border-brand-outline cursor-pointer hover:shadow-level-3 transition-all group flex flex-col"
-                    id={`bag-card-${bag.id}`}
-                  >
-                    {/* Image Area */}
-                    <div className="relative h-44 overflow-hidden bg-slate-100">
-                      <img
-                        src={bag.image}
-                        alt={bag.name}
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        id={`bag-img-${bag.id}`}
-                      />
-                      
-                      {/* Top Corner Badges */}
-                      <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                        <span className="bg-emerald-500 text-white font-extrabold text-xs px-2.5 py-1 rounded-lg shadow-md" id={`badge-discount-${bag.id}`}>
-                          {discountPct}% OFF
-                        </span>
-                        {bag.quantityAvailable <= 2 && (
-                          <span className="bg-amber-500 text-white font-bold text-[10px] px-2 py-0.5 rounded-md shadow-sm flex items-center gap-1">
-                            <Flame className="w-3 h-3" /> Only {bag.quantityAvailable} Left
+              <div className="lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-5" id="bags-grid">
+                {filteredBags.map((bag) => {
+                  const store = storeMap[bag.storeId];
+                  const discountPct = Math.round(((bag.originalPrice - bag.discountedPrice) / bag.originalPrice) * 100);
+                  
+                  return (
+                    <motion.div
+                      key={bag.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      onClick={() => onSelectBag(bag.id)}
+                      className="bg-brand-card rounded-2xl overflow-hidden shadow-level-2 border border-brand-outline cursor-pointer hover:shadow-level-3 transition-all group flex flex-col"
+                      id={`bag-card-${bag.id}`}
+                    >
+                      {/* Image Area */}
+                      <div className="relative h-44 lg:h-52 overflow-hidden bg-slate-100">
+                        <img
+                          src={bag.image}
+                          alt={bag.name}
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          id={`bag-img-${bag.id}`}
+                        />
+                        
+                        {/* Top Corner Badges */}
+                        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                          <span className="bg-emerald-500 text-white font-extrabold text-xs px-2.5 py-1 rounded-lg shadow-md" id={`badge-discount-${bag.id}`}>
+                            {discountPct}% OFF
                           </span>
-                        )}
-                      </div>
+                          {bag.quantityAvailable <= 2 && (
+                            <span className="bg-amber-500 text-white font-bold text-[10px] px-2 py-0.5 rounded-md shadow-sm flex items-center gap-1">
+                              <Flame className="w-3 h-3" /> Only {bag.quantityAvailable} Left
+                            </span>
+                          )}
+                        </div>
 
-                      {/* Distance Badge */}
-                      <div className="absolute bottom-3 right-3 bg-brand-text/80 backdrop-blur-xs text-white text-xs px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        <span>{store?.distance}</span>
-                      </div>
-                    </div>
-
-                    {/* Meta info area */}
-                    <div className="p-4" id={`bag-meta-${bag.id}`}>
-                      <div className="flex items-center justify-between mb-1" id="store-title-rating-row">
-                        <span className="text-xs font-semibold text-brand-primary" id={`bag-store-name-${bag.id}`}>
-                          {store?.name}
-                        </span>
-                        <div className="flex items-center gap-1 text-amber-500 text-xs font-bold" id={`bag-store-rating-${bag.id}`}>
-                          <Star className="w-3.5 h-3.5 fill-amber-500" />
-                          <span>{store?.rating}</span>
-                          <span className="text-slate-400 font-normal">({store?.reviewsCount})</span>
+                        {/* Distance Badge */}
+                        <div className="absolute bottom-3 right-3 bg-brand-text/80 backdrop-blur-xs text-white text-xs px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          <span>{store?.distance}</span>
                         </div>
                       </div>
 
-                      <h3 className="text-lg font-bold text-brand-text leading-snug group-hover:text-brand-primary transition-colors" id={`bag-title-${bag.id}`}>
-                        {bag.name}
-                      </h3>
-
-                      <p className="text-xs text-brand-text-muted mt-1 line-clamp-1" id={`bag-desc-${bag.id}`}>
-                        {bag.description}
-                      </p>
-
-                      {/* Tags */}
-                      <div className="flex flex-wrap gap-1 mt-2.5" id={`bag-tags-${bag.id}`}>
-                        {bag.tags.slice(0, 3).map((tag, i) => (
-                          <span key={i} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-medium">
-                            {tag}
+                      {/* Meta info area */}
+                      <div className="p-4 lg:p-5" id={`bag-meta-${bag.id}`}>
+                        <div className="flex items-center justify-between mb-1" id="store-title-rating-row">
+                          <span className="text-xs font-semibold text-brand-primary lg:text-sm" id={`bag-store-name-${bag.id}`}>
+                            {store?.name}
                           </span>
-                        ))}
-                      </div>
-
-                      {/* Divider line */}
-                      <hr className="my-3 border-brand-outline" />
-
-                      {/* Pricing and Pickup window */}
-                      <div className="flex items-center justify-between" id={`bag-pricing-pickup-${bag.id}`}>
-                        <div>
-                          <p className="text-xs text-brand-text-muted" id="pickup-label">Pickup window</p>
-                          <p className="text-xs font-semibold text-brand-text" id={`pickup-time-${bag.id}`}>
-                            {store?.pickupWindow.replace('Today, ', '')}
-                          </p>
+                          <div className="flex items-center gap-1 text-amber-500 text-xs font-bold" id={`bag-store-rating-${bag.id}`}>
+                            <Star className="w-3.5 h-3.5 fill-amber-500" />
+                            <span>{store?.rating}</span>
+                            <span className="text-slate-400 font-normal">({store?.reviewsCount})</span>
+                          </div>
                         </div>
 
-                        <div className="text-right" id={`bag-price-section-${bag.id}`}>
-                          <span className="text-xs text-slate-400 line-through mr-1.5 font-medium" id={`original-price-${bag.id}`}>
-                            ₱{bag.originalPrice}
-                          </span>
-                          <span className="text-xl font-extrabold text-brand-primary" id={`discount-price-${bag.id}`}>
-                            ₱{bag.discountedPrice}
-                          </span>
+                        <h3 className="text-lg font-bold text-brand-text leading-snug group-hover:text-brand-primary transition-colors lg:text-xl" id={`bag-title-${bag.id}`}>
+                          {bag.name}
+                        </h3>
+
+                        <p className="text-xs text-brand-text-muted mt-1 line-clamp-1 lg:text-sm lg:line-clamp-2" id={`bag-desc-${bag.id}`}>
+                          {bag.description}
+                        </p>
+
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-1 mt-2.5" id={`bag-tags-${bag.id}`}>
+                          {bag.tags.slice(0, 3).map((tag, i) => (
+                            <span key={i} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-medium lg:text-xs">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Divider line */}
+                        <hr className="my-3 border-brand-outline" />
+
+                        {/* Pricing and Pickup window */}
+                        <div className="flex items-center justify-between" id={`bag-pricing-pickup-${bag.id}`}>
+                          <div>
+                            <p className="text-xs text-brand-text-muted" id="pickup-label">Pickup window</p>
+                            <p className="text-xs font-semibold text-brand-text" id={`pickup-time-${bag.id}`}>
+                              {store?.pickupWindow.replace('Today, ', '')}
+                            </p>
+                          </div>
+
+                          <div className="text-right" id={`bag-price-section-${bag.id}`}>
+                            <span className="text-xs text-slate-400 line-through mr-1.5 font-medium" id={`original-price-${bag.id}`}>
+                              ₱{bag.originalPrice}
+                            </span>
+                            <span className="text-xl font-extrabold text-brand-primary lg:text-2xl" id={`discount-price-${bag.id}`}>
+                              ₱{bag.discountedPrice}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                );
-              })
+                    </motion.div>
+                  );
+                })}
+              </div>
             ) : (
               <div className="bg-brand-card p-8 rounded-2xl text-center border border-brand-outline mt-8" id="empty-results-fallback">
                 <ShieldAlert className="w-12 h-12 text-slate-300 mx-auto mb-3" />
@@ -267,7 +279,7 @@ export default function DiscoveryScreen({
           </div>
         ) : (
           /* Interactive Map View */
-          <div className="h-[calc(100vh-220px)] flex flex-col" id="map-view-wrapper">
+          <div className="h-[calc(100vh-220px)] lg:h-[calc(100vh-180px)] flex flex-col" id="map-view-wrapper">
             <div className="bg-brand-card p-3 rounded-xl border border-brand-outline mb-3 flex items-center gap-2" id="map-instructions-card">
               <Info className="w-4 h-4 text-brand-primary flex-shrink-0" />
               <p className="text-xs text-brand-text-muted leading-relaxed">
@@ -275,18 +287,14 @@ export default function DiscoveryScreen({
               </p>
             </div>
 
-            {/* Stylized Vector Map Canvas */}
             <div className="flex-1 bg-slate-100 rounded-2xl border border-slate-200 relative overflow-hidden shadow-inner" id="map-canvas">
-              {/* Grid Background representing streets */}
               <div className="absolute inset-0 bg-grid-[#cbd5e1]/10 opacity-30" />
               
-              {/* Simulated Roads/Streets */}
               <div className="absolute left-[45%] top-0 bottom-0 w-8 bg-slate-200 -rotate-12" title="Emerald Avenue" />
               <div className="absolute left-0 right-0 top-[40%] h-8 bg-slate-200 rotate-6" title="Student Union Lane" />
               <div className="absolute left-0 right-0 top-[70%] h-10 bg-slate-200 -rotate-3" title="High Street" />
               <div className="absolute left-[20%] top-0 bottom-0 w-6 bg-slate-200 rotate-45" title="Science Park Lane" />
               
-              {/* Campus Landmark Zones */}
               <div className="absolute top-[8%] left-[5%] bg-slate-200/60 border border-slate-300/40 rounded-xl px-2 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                 🔬 Science Hub
               </div>
@@ -297,7 +305,6 @@ export default function DiscoveryScreen({
                 🛍️ Retail Plaza
               </div>
 
-              {/* Store Markers */}
               {stores.map((store) => {
                 const coords = storeCoordinates[store.id] || { x: 50, y: 50 };
                 const isHovered = hoveredMarker === store.id;
@@ -310,7 +317,6 @@ export default function DiscoveryScreen({
                     className="absolute -translate-x-1/2 -translate-y-1/2 z-10"
                     id={`map-marker-container-${store.id}`}
                   >
-                    {/* Clickable Marker */}
                     <div
                       onMouseEnter={() => setHoveredMarker(store.id)}
                       onMouseLeave={() => setHoveredMarker(null)}
@@ -330,7 +336,6 @@ export default function DiscoveryScreen({
                       <span className="text-xs font-black font-mono">{store.logo}</span>
                     </div>
 
-                    {/* Popover Card */}
                     <div 
                       className={`absolute bottom-11 left-1/2 -translate-x-1/2 bg-brand-card p-3 rounded-xl shadow-level-3 border border-brand-outline w-44 transition-all pointer-events-none ${
                         isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
@@ -357,7 +362,6 @@ export default function DiscoveryScreen({
                         <p className="text-[10px] text-slate-400 mt-1">Sold out today</p>
                       )}
                       
-                      {/* Triangle Pointer */}
                       <div className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-3 h-3 bg-brand-card rotate-45 border-r border-b border-brand-outline" />
                     </div>
                   </div>
